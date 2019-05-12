@@ -51,12 +51,15 @@ macro(precompiled_header_exclude exclude)
 	endif(MSVC)
 endmacro(precompiled_header_exclude)
 
-# Function to enable c++17 compilation on linux
 macro(enable_cpp17)
 	if(UNIX)
 		# C++17 support enabled for linux compilers
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
 	endif(UNIX)
+	if(MSVC)
+		# C++17 support enabled for msvc compilers
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++17")
+	endif(MSVC)
 endmacro(enable_cpp17)
 
 # Set output binary postfixes so that they will be named <project>_<configuration>.exe/dll

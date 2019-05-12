@@ -113,7 +113,7 @@ public:
 		for(Job& j : finished)
 		{
 			j->Finalize();
-			j->OnFinished.Call(j);
+			j->OnFinished(j);
 			j->m_finished = true;
 			j->m_sheduler = nullptr;
 		}

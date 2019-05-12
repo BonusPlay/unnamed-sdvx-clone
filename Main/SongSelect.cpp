@@ -40,7 +40,7 @@ public:
 	void OnTextInput(const WString& wstr)
 	{
 		input += wstr;
-		OnTextChanged.Call(input);
+		OnTextChanged(input);
 	}
 	void OnTextComposition(const Graphics::TextComposition& comp)
 	{
@@ -57,7 +57,7 @@ public:
 				auto it = input.end(); // Modify input string instead
 				--it;
 				input.erase(it);
-				OnTextChanged.Call(input);
+				OnTextChanged(input);
 			}
 		}
 	}
@@ -407,7 +407,7 @@ public:
 		SongSelectIndex* map = maps.Find(m_currentlySelectedId);
 		if(map)
 		{
-			OnDifficultySelected.Call(map[0].GetDifficulties()[m_currentlySelectedDiff]);
+			OnDifficultySelected(map[0].GetDifficulties()[m_currentlySelectedDiff]);
 		}
 	}
 	void AdvanceDifficultySelection(int32 offset)
@@ -621,7 +621,7 @@ private:
 		}
 		SelectDifficulty(selectDiff);
 
-		OnMapSelected.Call(index.GetMap());
+		OnMapSelected(index.GetMap());
 		m_currentlySelectedMapId = index.GetMap()->id;
 	}
 };

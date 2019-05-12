@@ -774,7 +774,7 @@ public:
 				if (m_state)
 				{
 					// calc sens and then call delagate
-					SensSet.Call(6.0 / (m_delta / m_currentSetting));
+					SensSet(6.0 / (m_delta / m_currentSetting));
 					g_application->RemoveTickable(this);
 				}
 				else

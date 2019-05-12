@@ -1,6 +1,9 @@
 /*  Group header for file system specific things */
 #pragma once
 
+// Refactor
+#include <filesystem>
+
 // File API
 #include "Path.hpp"
 #include "File.hpp"

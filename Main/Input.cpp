@@ -275,11 +275,11 @@ void Input::m_OnButtonInput(Button b, bool pressed)
 		state = pressed;
 		if(state)
 		{
-			OnButtonPressed.Call(b);
+			OnButtonPressed(b);
 		}
 		else
 		{
-			OnButtonReleased.Call(b);
+			OnButtonReleased(b);
 		}
 	}
 

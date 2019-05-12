@@ -11,9 +11,9 @@ typedef void* DelegateHandle;
 template<typename... A>
 class Delegate
 {
-	Map<void*, IFunctionBinding<void, A...>*> staticMap;
-	Map<void*, Map<void*, IFunctionBinding<void, A...>*>> objectMap;
-	Map<void*, IFunctionBinding<void, A...>*> lambdaMap;
+	Map<void*, FunctionBinding<void, A...>*> staticMap;
+	Map<void*, Map<void*, FunctionBinding<void, A...>*>> objectMap;
+	Map<void*, FunctionBinding<void, A...>*> lambdaMap;
 public:
 	~Delegate()
 	{
@@ -34,12 +34,12 @@ public:
 	{
 		void* id = Utility::UnionCast<void*>(func);
 		assert(!staticMap.Contains(id));
-		staticMap.Add(id, new StaticBinding<void, A...>(func));
+		staticMap.Add(id, new FunctionBinding<void, A...>(func));
 	}
 	// Adds a lambda function as a handler for this delegate
 	template<typename T> DelegateHandle AddLambda(T&& lambda)
 	{
-		LambdaBinding<T, void, A...>* binding = new LambdaBinding<T, void, A...>(std::forward<T>(lambda));
+		FunctionBinding<void, A...>* binding = new FunctionBinding<void, A...>(std::forward<T>(lambda));
 		void* id = binding;
 		assert(!lambdaMap.Contains(id));
 		lambdaMap.Add(id, binding);
@@ -113,22 +113,22 @@ public:
 	}
 
 	// Calls the delegate
-	void Call(A... args)
+	void operator()(A... args)
 	{
 		for(auto& h : staticMap)
 		{
-			h.second->Call(args...);
+			(*h.second)(args...);
 		}
 		for(auto& h : objectMap)
 		{
 			for(auto& f : h.second)
 			{
-				f.second->Call(args...);
+				(*f.second)(args...);
 			}
 		}
 		for(auto& h : lambdaMap)
 		{
-			h.second->Call(args...);
+			(*h.second)(args...);
 		}
 	}
 

@@ -1,89 +1,68 @@
 #pragma once
+#include <memory>
 #include "Bindable.hpp"
-#include "Unique.hpp"
 
 /*
 	Action is an objects that holds the neccesary information to call a single static function / member function / lambda
 */
 template<typename R = void, typename... A>
-class Action : public Unique
+class Action
 {
 public:
 	Action() = default;
-	explicit Action(R(*staticFunction)(A...));
+	explicit Action(std::function<R(A...)> function)
+	{
+		m_binding.reset(new FunctionBinding<R, A...>(function));
+	}
 
 	template<typename L>
-	explicit Action(L&& lambda)
+	Action(L&& lambda)
 	{
-		m_binding = new LambdaBinding<L, R, A...>(std::forward<L>(lambda));
+		m_binding.reset(new FunctionBinding<R, A...>(std::forward<L>(lambda)));
 	}
 
 	Action(Action&& other) noexcept
 	{
-		m_binding = other.m_binding;
-		other.m_binding = nullptr;
+		m_binding.reset(other.m_binding.release());
 	}
 
 	Action& operator=(Action&& other) noexcept
 	{
-		Clear();
-		m_binding = other.m_binding;
-		other.m_binding = nullptr;
+		m_binding.reset(other.m_binding.release());
 		return *this;
 	}
 
-	void Bind(R(*staticFunction)(A...))
+	void Bind(std::function<R(A...)>)
 	{
-		Clear();
-		m_binding = new StaticBinding<R, A...>(staticFunction);
+		m_binding.reset(new FunctionBinding<R, A...>(staticFunction));
 	}
 
 	template<typename T>
 	void Bind(T* obj, R(T::*memberFunc)(A...))
 	{
-		Clear();
-		m_binding = new ObjectBinding<T, R, A...>(obj, memberFunc);
+		m_binding.reset(new ObjectBinding<T, R, A...>(obj, memberFunc));
 	}
 
 	template<typename L>
 	void BindLambda(L&& lambda)
 	{
-		Clear();
-		m_binding = new LambdaBinding<L, R, A...>(std::forward<L>(lambda));
+		m_binding.reset(new FunctionBinding<R, A...>(std::forward<L>(lambda)));
 	}
 
-	~Action()
-	{
-		Clear();
-	}
-
-	R Call(A... args)
+	R operator()(A... args)
 	{
 		assert(IsBound());
-		return m_binding->Call(args...);
+		return (*m_binding)(args...);
 	}
 
 	bool IsBound() const
 	{
-		return m_binding != nullptr;
-	}
-
-	void Clear()
-	{
-		if(m_binding)
-			delete m_binding;
-		m_binding = nullptr;
+		return (bool)m_binding;
 	}
 
 private:
-	IFunctionBinding<R, A...>* m_binding = nullptr;
+	std::unique_ptr<FunctionBinding<R, A...>> m_binding;
 };
-
-template<typename R, typename... A>
-Action<R, A...>::Action(R (* staticFunction)(A...))
-{
-	m_binding = new StaticBinding<R, A...>(staticFunction);
-}
 
 /* 
 	Bindable property 
@@ -103,7 +82,7 @@ public:
 	{}
 
 	// Get
-	inline explicit operator T() const
+	inline operator T() const
 	{
 		return m_Get();
 	}
@@ -124,16 +103,16 @@ protected:
 	inline T m_Get() const
 	{
 		if(Get.IsBound())
-			return const_cast<Property*>(this)->Get.Call();
+			return const_cast<Property*>(this)->Get();
 		else
 			return m_value;
 	}
 
 	inline void m_Set(const T& val)
 	{
-		if(Set.IsBound())
-			Set.Call(val);
+		if (Set.IsBound())
+			Set(val);
 		else
 			m_value = val;
-
+	}
 };
