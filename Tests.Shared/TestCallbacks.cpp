@@ -27,7 +27,7 @@ Test("Delegate.LambdaRValue")
 		testCounter = arg;
 	});
 
-	dv.Call(101);
+	dv(101);
 	TestEnsure(testCounter == 101);
 }
 
@@ -45,7 +45,7 @@ Test("Delegate.Call")
 	dv.Add(&TestCallback);
 	dv.Add(&tc, &TestClass::TestCallback);
 	dv.AddLambda(lambda);
-	dv.Call();
+	dv();
 
 	TestEnsure(callCounter == 2);
 	TestEnsure(tc.classCallCounter == 1);
@@ -53,7 +53,7 @@ Test("Delegate.Call")
 	dv.Clear();
 
 	// Ensure state persist after clear
-	dv.Call();
+	dv();
 	TestEnsure(callCounter == 2);
 	TestEnsure(tc.classCallCounter == 1);
 
@@ -64,7 +64,7 @@ Test("Delegate.Call")
 	dv.Remove(dh);
 	dv.Remove(&TestCallback);
 	dv.Remove(&tc, &TestClass::TestCallback);
-	dv.Call();
+	dv();
 	TestEnsure(callCounter == 2);
 	TestEnsure(tc.classCallCounter == 1);
 }
@@ -80,16 +80,16 @@ Test("Action.Assignment")
 	{
 		callCounter++;
 	};
-	a.Call();
+	a();
 	TestEnsure(callCounter == 1);
 
 	// Lamba binding
 	int localCallCounter = 0;
-	Action<> b = [&]()
+	Action<> b([&]()
 	{
 		localCallCounter++;
-	};
-	b.Call();
+	});
+	b();
 	TestEnsure(localCallCounter == 1);
 }
 

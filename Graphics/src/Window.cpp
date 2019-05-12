@@ -169,16 +169,16 @@ namespace Graphics
 				currentState = newState;
 				if(newState == 1)
 				{
-					outer.OnKeyPressed.Call(code);
+					outer.OnKeyPressed(code);
 				}
 				else
 				{
-					outer.OnKeyReleased.Call(code);
+					outer.OnKeyReleased(code);
 				}
 			}
 			if(currentState == 1)
 			{
-				outer.OnKeyRepeat.Call(code);
+				outer.OnKeyRepeat(code);
 			}
 		}
 
@@ -270,13 +270,13 @@ namespace Graphics
 					switch(evt.button.button)
 					{
 					case SDL_BUTTON_LEFT:
-						outer.OnMousePressed.Call(MouseButton::Left);
+						outer.OnMousePressed(MouseButton::Left);
 							break;
 					case SDL_BUTTON_MIDDLE:
-						outer.OnMousePressed.Call(MouseButton::Middle);
+						outer.OnMousePressed(MouseButton::Middle);
 							break;
 					case SDL_BUTTON_RIGHT:
-						outer.OnMousePressed.Call(MouseButton::Right);
+						outer.OnMousePressed(MouseButton::Right);
 							break;
 					}
 				}
@@ -285,13 +285,13 @@ namespace Graphics
 					switch(evt.button.button)
 					{
 					case SDL_BUTTON_LEFT:
-						outer.OnMouseReleased.Call(MouseButton::Left);
+						outer.OnMouseReleased(MouseButton::Left);
 						break;
 					case SDL_BUTTON_MIDDLE:
-						outer.OnMouseReleased.Call(MouseButton::Middle);
+						outer.OnMouseReleased(MouseButton::Middle);
 						break;
 					case SDL_BUTTON_RIGHT:
-						outer.OnMouseReleased.Call(MouseButton::Right);
+						outer.OnMouseReleased(MouseButton::Right);
 						break;
 					}
 				}
@@ -299,16 +299,16 @@ namespace Graphics
 				{
 					if(evt.wheel.direction == SDL_MOUSEWHEEL_FLIPPED)
 					{
-						outer.OnMouseScroll.Call(evt.wheel.y);
+						outer.OnMouseScroll(evt.wheel.y);
 					}
 					else
 					{
-						outer.OnMouseScroll.Call(-evt.wheel.y);
+						outer.OnMouseScroll(-evt.wheel.y);
 					}
 				}
 				else if (evt.type == SDL_EventType::SDL_MOUSEMOTION)
 				{
-					outer.OnMouseMotion.Call(evt.motion.xrel, evt.motion.yrel);
+					outer.OnMouseMotion(evt.motion.xrel, evt.motion.yrel);
 				}
 				else if(evt.type == SDL_EventType::SDL_QUIT)
 				{
@@ -321,14 +321,14 @@ namespace Graphics
 						if(evt.window.event == SDL_WindowEventID::SDL_WINDOWEVENT_SIZE_CHANGED)
 						{
 							Vector2i newSize(evt.window.data1, evt.window.data2);
-							outer.OnResized.Call(newSize);
+							outer.OnResized(newSize);
 						}
 					}
 				}
 				else if(evt.type == SDL_EventType::SDL_TEXTINPUT)
 				{
 					WString wstr = Utility::ConvertToWString(evt.text.text);
-					outer.OnTextInput.Call(wstr);
+					outer.OnTextInput(wstr);
 				}
 				else if(evt.type == SDL_EventType::SDL_TEXTEDITING)
 				{
@@ -340,9 +340,9 @@ namespace Graphics
 					m_textComposition.composition = Utility::ConvertToWString(evt.edit.text);
 					m_textComposition.cursor = evt.edit.start;
 					m_textComposition.selectionLength = evt.edit.length;
-					outer.OnTextComposition.Call(m_textComposition);
+					outer.OnTextComposition(m_textComposition);
 				}
-				outer.OnAnyEvent.Call(evt);
+				outer.OnAnyEvent(evt);
 			}
 			return !m_closed;
 		}

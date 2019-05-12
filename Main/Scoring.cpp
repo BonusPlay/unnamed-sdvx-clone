@@ -173,7 +173,7 @@ void Scoring::Reset()
 	m_CleanupHitStats();
 	m_CleanupTicks();
 
-	OnScoreChanged.Call(0);
+	OnScoreChanged(0);
 }
 
 void Scoring::FinishGame()
@@ -764,7 +764,7 @@ void Scoring::m_OnTickProcessed(ScoreTick* tick, uint32 index)
 {
 	if(OnScoreChanged.IsHandled())
 	{
-		OnScoreChanged.Call(CalculateCurrentScore());
+		OnScoreChanged(CalculateCurrentScore());
 	}
 }
 void Scoring::m_TickHit(ScoreTick* tick, uint32 index, MapTime delta /*= 0*/)
@@ -774,7 +774,7 @@ void Scoring::m_TickHit(ScoreTick* tick, uint32 index, MapTime delta /*= 0*/)
 	{
 		stat->delta = delta;
 		stat->rating = tick->GetHitRatingFromDelta(delta);
-		OnButtonHit.Call((Input::Button)index, stat->rating, tick->object, Math::Sign(delta) > 0);
+		OnButtonHit((Input::Button)index, stat->rating, tick->object, Math::Sign(delta) > 0);
 
 		if (stat->rating == ScoreHitRating::Perfect)
 		{
@@ -808,7 +808,7 @@ void Scoring::m_TickHit(ScoreTick* tick, uint32 index, MapTime delta /*= 0*/)
 		LaserObjectState* rootObject = ((LaserObjectState*)tick->object)->GetRoot();
 		if(tick->HasFlag(TickFlags::Slam))
 		{
-			OnLaserSlamHit.Call((LaserObjectState*)tick->object);
+			OnLaserSlamHit((LaserObjectState*)tick->object);
 			// Set laser pointer position after hitting slam
 			laserTargetPositions[object->index] = object->points[1];
 			laserPositions[object->index] = object->points[1];
@@ -839,7 +839,7 @@ void Scoring::m_TickMiss(ScoreTick* tick, uint32 index, MapTime delta)
 	}
 	if(tick->HasFlag(TickFlags::Button))
 	{
-		OnButtonMiss.Call((Input::Button)index, delta < 0 && abs(delta) > goodHitTime); 
+		OnButtonMiss((Input::Button)index, delta < 0 && abs(delta) > goodHitTime); 
 		stat->rating = ScoreHitRating::Miss;
 		stat->delta = delta;
 		currentGauge -= shortMissDrain;
@@ -893,13 +893,13 @@ void Scoring::m_AddScore(uint32 score)
 	currentGauge = std::min(1.0f, currentGauge);
 	currentComboCounter += 1;
 	maxComboCounter = Math::Max(maxComboCounter, currentComboCounter);
-	OnComboChanged.Call(currentComboCounter);
+	OnComboChanged(currentComboCounter);
 }
 void Scoring::m_ResetCombo()
 {
 	comboState = 0;
 	currentComboCounter = 0;
-	OnComboChanged.Call(currentComboCounter);
+	OnComboChanged(currentComboCounter);
 }
 
 void Scoring::m_SetHoldObject(ObjectState* obj, uint32 index)
@@ -909,7 +909,7 @@ void Scoring::m_SetHoldObject(ObjectState* obj, uint32 index)
 		assert(!m_heldObjects.Contains(obj));
 		m_heldObjects.Add(obj);
 		m_holdObjects[index] = obj;
-		OnObjectHold.Call((Input::Button)index, obj);
+		OnObjectHold((Input::Button)index, obj);
 	}
 }
 void Scoring::m_ReleaseHoldObject(ObjectState* obj)
@@ -925,7 +925,7 @@ void Scoring::m_ReleaseHoldObject(ObjectState* obj)
 			if(m_holdObjects[i] == obj)
 			{
 				m_holdObjects[i] = nullptr;
-				OnObjectReleased.Call((Input::Button)i, obj);
+				OnObjectReleased((Input::Button)i, obj);
 				return;
 			}
 		}
@@ -1097,7 +1097,7 @@ void Scoring::m_OnButtonPressed(Input::Button buttonCode)
 		if(!obj)
 		{
 			// Fire event for idle hits
-			OnButtonHit.Call(buttonCode, ScoreHitRating::Idle, nullptr, false);
+			OnButtonHit(buttonCode, ScoreHitRating::Idle, nullptr, false);
 		}
 	}
 	else if (buttonCode > Input::Button::BT_S)

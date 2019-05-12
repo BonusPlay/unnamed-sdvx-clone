@@ -112,7 +112,7 @@ public:
 			g_application->AddTickable(m_tickableToLoad, this);
 		}
 
-		OnLoadingComplete.Call(m_tickableToLoad);
+		OnLoadingComplete(m_tickableToLoad);
 		m_transition = Out;
 		m_transitionTimer = 0.0f;
 	}

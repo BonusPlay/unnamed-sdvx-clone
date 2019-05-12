@@ -38,9 +38,9 @@ namespace Graphics
 	{
 		m_buttonStates[buttonIndex] = newState;
 		if(newState != 0)
-			OnButtonPressed.Call(buttonIndex);
+			OnButtonPressed(buttonIndex);
 		else
-			OnButtonReleased.Call(buttonIndex);
+			OnButtonReleased(buttonIndex);
 	}
 	void Gamepad_Impl::HandleAxisEvent(uint32 axisIndex, int16 newValue)
 	{

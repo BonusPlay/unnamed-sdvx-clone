@@ -46,6 +46,8 @@ lib/
 
 # Ignore local cmake files
 cmake_install.cmake
+cmake_uninstall.cmake
+SDL2ConfigVersion.cmake
 CPackConfig.cmake
 CPackSourceConfig.cmake
 *.dir

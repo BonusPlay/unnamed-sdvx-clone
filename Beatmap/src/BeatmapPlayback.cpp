@@ -59,9 +59,9 @@ void BeatmapPlayback::Update(MapTime newTime)
 	if (!m_initialEffectStateSent)
 	{
 		const BeatmapSettings& settings = m_beatmap->GetMapSettings();
-		OnEventChanged.Call(EventKey::LaserEffectMix, settings.laserEffectMix);
-		OnEventChanged.Call(EventKey::LaserEffectType, settings.laserEffectType);
-		OnEventChanged.Call(EventKey::SlamVolume, settings.slamVolume);
+		OnEventChanged(EventKey::LaserEffectMix, settings.laserEffectMix);
+		OnEventChanged(EventKey::LaserEffectType, settings.laserEffectType);
+		OnEventChanged(EventKey::SlamVolume, settings.slamVolume);
 		m_initialEffectStateSent = true;
 	}
 
@@ -84,7 +84,7 @@ void BeatmapPlayback::Update(MapTime newTime)
 		/// TODO: Investigate why this causes score to be too high
 		//hittableLaserEnter = (*m_currentTiming)->beatDuration * 4.0;
 		//alertLaserThreshold = (*m_currentTiming)->beatDuration * 6.0;
-		OnTimingPointChanged.Call(*m_currentTiming);
+		OnTimingPointChanged(*m_currentTiming);
 	}
 
 	// Advance lane toggle
@@ -92,7 +92,7 @@ void BeatmapPlayback::Update(MapTime newTime)
 	if (laneToggleEnd != nullptr && laneToggleEnd != m_currentLaneTogglePoint)
 	{
 		m_currentLaneTogglePoint = laneToggleEnd;
-		OnLaneToggleChanged.Call(*m_currentLaneTogglePoint);
+		OnLaneToggleChanged(*m_currentLaneTogglePoint);
 	}
 
 	// Advance objects
@@ -109,7 +109,7 @@ void BeatmapPlayback::Update(MapTime newTime)
 					m_holdObjects.Add(*obj);
 				}
 				m_hittableObjects.Add(*it);
-				OnObjectEntered.Call(*it);
+				OnObjectEntered(*it);
 			}
 		}
 		m_currentObj = objEnd;
@@ -127,7 +127,7 @@ void BeatmapPlayback::Update(MapTime newTime)
 			{
 				m_holdObjects.Add(*obj);
 				m_hittableObjects.Add(*it);
-				OnObjectEntered.Call(*it);
+				OnObjectEntered(*it);
 			}
 		}
 		m_currentLaserObj = objEnd;
@@ -145,7 +145,7 @@ void BeatmapPlayback::Update(MapTime newTime)
 			{
 				LaserObjectState* laser = (LaserObjectState*)obj;
 				if (!laser->prev)
-					OnLaserAlertEntered.Call(laser);
+					OnLaserAlertEntered(laser);
 			}
 		}
 		m_currentAlertObj = objEnd;
@@ -187,7 +187,7 @@ void BeatmapPlayback::Update(MapTime newTime)
 			MapTime endTime = obj->hold.duration + obj->time;
 			if (endTime < objectPassTime)
 			{
-				OnObjectLeaved.Call(*it);
+				OnObjectLeaved(*it);
 				it = m_hittableObjects.erase(it);
 				continue;
 			}
@@ -196,7 +196,7 @@ void BeatmapPlayback::Update(MapTime newTime)
 			{
 				if (!m_effectObjects.Contains(*obj))
 				{
-					OnFXBegin.Call((HoldObjectState*)*it);
+					OnFXBegin((HoldObjectState*)*it);
 					m_effectObjects.Add(*obj);
 				}
 			}
@@ -205,7 +205,7 @@ void BeatmapPlayback::Update(MapTime newTime)
 		{
 			if ((obj->laser.duration + obj->time) < objectPassTime)
 			{
-				OnObjectLeaved.Call(*it);
+				OnObjectLeaved(*it);
 				it = m_hittableObjects.erase(it);
 				continue;
 			}
@@ -214,7 +214,7 @@ void BeatmapPlayback::Update(MapTime newTime)
 		{
 			if (obj->time < objectPassTime)
 			{
-				OnObjectLeaved.Call(*it);
+				OnObjectLeaved(*it);
 				it = m_hittableObjects.erase(it);
 				continue;
 			}
@@ -225,7 +225,7 @@ void BeatmapPlayback::Update(MapTime newTime)
 			if (obj->time < (m_playbackTime + 2)) // Tiny offset to make sure events are triggered before they are needed
 			{
 				// Trigger event
-				OnEventChanged.Call(evt->key, evt->data);
+				OnEventChanged(evt->key, evt->data);
 				m_eventMapping[evt->key] = evt->data;
 				it = m_hittableObjects.erase(it);
 				continue;
@@ -250,7 +250,7 @@ void BeatmapPlayback::Update(MapTime newTime)
 			{
 				if (m_effectObjects.Contains(*it))
 				{
-					OnFXEnd.Call((HoldObjectState*)*it);
+					OnFXEnd((HoldObjectState*)*it);
 					m_effectObjects.erase(*it);
 				}
 			}
