@@ -97,11 +97,11 @@ Job JobBase::CreateLambda(Lambda&& obj, Args... args)
 	The manager for performing asynchronous tasks
 	you should only have one of these
 */
-class JobSheduler : public Unique
+class JobScheduler : public Unique
 {
 public:
-	JobSheduler();
-	~JobSheduler();
+	JobScheduler();
+	~JobScheduler();
 
 	// Runs callbacks on finished tasks on the main thread
 	// should thus be called from the main thread only

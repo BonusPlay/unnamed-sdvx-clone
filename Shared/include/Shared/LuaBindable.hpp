@@ -10,7 +10,7 @@ int lIndexFunction(lua_State* L);
 class LuaBindable
 {
 public:
-	Map<String, FunctionBinding<int, lua_State*>*> Bindings;
+	Map<String, FunctionBinding<int(lua_State*)>*> Bindings;
 	LuaBindable(lua_State* L, String name) : m_name(name)
 	{
 		m_lua = L;
@@ -43,7 +43,7 @@ private:
 
 int lMemberCallFunction(lua_State* L)
 {
-	FunctionBinding<int, lua_State*>** t = (FunctionBinding<int, lua_State*>**)(luaL_checkudata(L, 1, "Scriptable_Callback"));
+	FunctionBinding<int(lua_State*)>** t = (FunctionBinding<int(lua_State*)>**)(luaL_checkudata(L, 1, "Scriptable_Callback"));
 	return (**t)(L);
 }
 
@@ -58,7 +58,7 @@ int lIndexFunction(lua_State* L)
 		lua_setfield(L, -2, "__call");
 	}
 
-	FunctionBinding<int, lua_State*>** ud = static_cast<FunctionBinding<int, lua_State*>**>(lua_newuserdata(L, sizeof(FunctionBinding<int, lua_State*>*)));
+	FunctionBinding<int(lua_State*)>** ud = static_cast<FunctionBinding<int(lua_State*)>**>(lua_newuserdata(L, sizeof(FunctionBinding<int(lua_State*)>*)));
 	*(ud) = (*t)->Bindings[lookup];
 
 	luaL_setmetatable(L, "Scriptable_Callback");

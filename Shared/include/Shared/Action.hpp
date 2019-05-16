@@ -12,13 +12,13 @@ public:
 	Action() = default;
 	explicit Action(std::function<R(A...)> function)
 	{
-		m_binding.reset(new FunctionBinding<R, A...>(function));
+		m_binding.reset(new FunctionBinding<R(A...)>(function));
 	}
 
 	template<typename L>
 	Action(L&& lambda)
 	{
-		m_binding.reset(new FunctionBinding<R, A...>(std::forward<L>(lambda)));
+		m_binding.reset(new FunctionBinding<R(A...)>(std::forward<L>(lambda)));
 	}
 
 	Action(Action&& other) noexcept
@@ -34,19 +34,19 @@ public:
 
 	void Bind(std::function<R(A...)>)
 	{
-		m_binding.reset(new FunctionBinding<R, A...>(staticFunction));
+		m_binding.reset(new FunctionBinding<R(A...)>(staticFunction));
 	}
 
 	template<typename T>
 	void Bind(T* obj, R(T::*memberFunc)(A...))
 	{
-		m_binding.reset(new ObjectBinding<T, R, A...>(obj, memberFunc));
+		m_binding.reset(new ObjectBinding<T, R(A...)>(obj, memberFunc));
 	}
 
 	template<typename L>
 	void BindLambda(L&& lambda)
 	{
-		m_binding.reset(new FunctionBinding<R, A...>(std::forward<L>(lambda)));
+		m_binding.reset(new FunctionBinding<R(A...)>(std::forward<L>(lambda)));
 	}
 
 	R operator()(A... args)
@@ -61,7 +61,7 @@ public:
 	}
 
 private:
-	std::unique_ptr<FunctionBinding<R, A...>> m_binding;
+	std::unique_ptr<FunctionBinding<R(A...)>> m_binding;
 };
 
 /* 

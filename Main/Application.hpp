@@ -9,7 +9,7 @@ extern class Graphics::Window* g_gameWindow;
 extern float g_aspectRatio;
 extern Vector2i g_resolution;
 extern class Application* g_application;
-extern class JobSheduler* g_jobSheduler;
+extern class JobScheduler* g_jobSheduler;
 extern class Input g_input;
 
 #define VERSION_MAJOR 0

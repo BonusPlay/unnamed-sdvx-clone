@@ -15,8 +15,6 @@ public:
 	Buffer& operator=(Buffer&& rhs);
 	// Creates a new buffer from a string, without the terminating null character
 	Buffer(const char* string);
-	// Creates a new buffer with an initial size
-	Buffer(size_t initialSize);
 	// Creates a copy of this buffer
 	Buffer Copy() const;
 };

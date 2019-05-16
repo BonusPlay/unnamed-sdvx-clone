@@ -22,7 +22,7 @@ Test("Delegate.LambdaRValue")
 {
 	Delegate<int> dv;
 	int testCounter = 0;
-	dv.AddLambda([&](int arg)
+	dv.AddLambda("LambdaRValue", [&](int arg)
 	{
 		testCounter = arg;
 	});
@@ -42,9 +42,9 @@ Test("Delegate.Call")
 	};
 
 	Delegate<> dv;
-	dv.Add(&TestCallback);
-	dv.Add(&tc, &TestClass::TestCallback);
-	dv.AddLambda(lambda);
+	dv.Add("StaticCall", &TestCallback);
+	dv.Add("ObjectCall", &tc, &TestClass::TestCallback);
+	dv.AddLambda("LambdaCall", lambda);
 	dv();
 
 	TestEnsure(callCounter == 2);
@@ -57,13 +57,13 @@ Test("Delegate.Call")
 	TestEnsure(callCounter == 2);
 	TestEnsure(tc.classCallCounter == 1);
 
-	// Ensure state after removeing callbacks manually
-	dv.Add(&TestCallback);
-	dv.Add(&tc, &TestClass::TestCallback);
-	DelegateHandle dh = dv.AddLambda(lambda);
-	dv.Remove(dh);
-	dv.Remove(&TestCallback);
-	dv.Remove(&tc, &TestClass::TestCallback);
+	// Ensure state after removing callbacks manually
+	dv.Add("StaticCall", &TestCallback);
+	dv.Add("ObjectCall", &tc, &TestClass::TestCallback);
+	dv.AddLambda("LambdaCall", lambda);
+	dv.Remove("LambdaCall");
+	dv.Remove("StaticCall");
+	dv.Remove("ObjectCall");
 	dv();
 	TestEnsure(callCounter == 2);
 	TestEnsure(tc.classCallCounter == 1);

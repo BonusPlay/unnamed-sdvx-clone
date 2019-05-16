@@ -54,42 +54,42 @@ void GameConfig::InitDefaults()
 
 	// Default keyboard bindings
 	Set(GameConfigKeys::Key_BTS, SDLK_1); // Start button on Dao controllers
-	Set(GameConfigKeys::Key_BT0, SDLK_d);
-	Set(GameConfigKeys::Key_BT1, SDLK_f);
-	Set(GameConfigKeys::Key_BT2, SDLK_j);
-	Set(GameConfigKeys::Key_BT3, SDLK_k);
-	Set(GameConfigKeys::Key_BT0Alt, -1);
-	Set(GameConfigKeys::Key_BT1Alt, -1);
-	Set(GameConfigKeys::Key_BT2Alt, -1);
-	Set(GameConfigKeys::Key_BT3Alt, -1);
-	Set(GameConfigKeys::Key_FX0, SDLK_c);
-	Set(GameConfigKeys::Key_FX1, SDLK_m);
-	Set(GameConfigKeys::Key_FX0Alt, -1);
-	Set(GameConfigKeys::Key_FX1Alt, -1);
-	Set(GameConfigKeys::Key_Laser0Neg, SDLK_w);
-	Set(GameConfigKeys::Key_Laser0Pos, SDLK_e);
-	Set(GameConfigKeys::Key_Laser1Neg, SDLK_o);
-	Set(GameConfigKeys::Key_Laser1Pos, SDLK_p);
+	Set(GameConfigKeys::Key_BTA, SDLK_d);
+	Set(GameConfigKeys::Key_BTB, SDLK_f);
+	Set(GameConfigKeys::Key_BTC, SDLK_j);
+	Set(GameConfigKeys::Key_BTD, SDLK_k);
+	Set(GameConfigKeys::Key_BTAAlt, -1);
+	Set(GameConfigKeys::Key_BTBAlt, -1);
+	Set(GameConfigKeys::Key_BTCAlt, -1);
+	Set(GameConfigKeys::Key_BTDAlt, -1);
+	Set(GameConfigKeys::Key_FXL, SDLK_c);
+	Set(GameConfigKeys::Key_FXR, SDLK_m);
+	Set(GameConfigKeys::Key_FXLAlt, -1);
+	Set(GameConfigKeys::Key_FXRAlt, -1);
+	Set(GameConfigKeys::Key_LaserLNeg, SDLK_w);
+	Set(GameConfigKeys::Key_LaserLPos, SDLK_e);
+	Set(GameConfigKeys::Key_LaserRNeg, SDLK_o);
+	Set(GameConfigKeys::Key_LaserRPos, SDLK_p);
 	Set(GameConfigKeys::Key_Sensitivity, 3.0f);
 	Set(GameConfigKeys::Key_LaserReleaseTime, 0.0f);
 
 	// Default controller settings
 	Set(GameConfigKeys::Controller_DeviceID, 0); // First device
 	Set(GameConfigKeys::Controller_BTS, 0);
-	Set(GameConfigKeys::Controller_BT0, 1);
-	Set(GameConfigKeys::Controller_BT1, 2);
-	Set(GameConfigKeys::Controller_BT2, 3);
-	Set(GameConfigKeys::Controller_BT3, 4);
-	Set(GameConfigKeys::Controller_FX0, 5);
-	Set(GameConfigKeys::Controller_FX1, 6);
-	Set(GameConfigKeys::Controller_Laser0Axis, 0);
-	Set(GameConfigKeys::Controller_Laser1Axis, 1);
+	Set(GameConfigKeys::Controller_BTA, 1);
+	Set(GameConfigKeys::Controller_BTB, 2);
+	Set(GameConfigKeys::Controller_BTC, 3);
+	Set(GameConfigKeys::Controller_BTD, 4);
+	Set(GameConfigKeys::Controller_FXL, 5);
+	Set(GameConfigKeys::Controller_FXR, 6);
+	Set(GameConfigKeys::Controller_LaserLAxis, 0);
+	Set(GameConfigKeys::Controller_LaserRAxis, 1);
 	Set(GameConfigKeys::Controller_Sensitivity, 1.0f);
 	Set(GameConfigKeys::Controller_Deadzone, 0.f);
 
 	// Default mouse settings
-	Set(GameConfigKeys::Mouse_Laser0Axis, 0);
-	Set(GameConfigKeys::Mouse_Laser1Axis, 1);
+	Set(GameConfigKeys::Mouse_LaserLAxis, 0);
+	Set(GameConfigKeys::Mouse_LaserRAxis, 1);
 	Set(GameConfigKeys::Mouse_Sensitivity, 1.0f);
 
 	// Default to 0ms input bounce guard

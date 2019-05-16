@@ -76,13 +76,13 @@ void Scoring::SetPlayback(BeatmapPlayback& playback)
 {
 	if(m_playback)
 	{
-		m_playback->OnObjectEntered.RemoveAll(this);
-		m_playback->OnObjectLeaved.RemoveAll(this);
+		m_playback->OnObjectEntered.RemoveAll("Scoring");
+		m_playback->OnObjectLeaved.RemoveAll("Scoring");
 	}
 	m_playback = &playback;
 	//m_playback->OnFXBegin.Add(this, &Scoring::m_OnFXBegin);
-	m_playback->OnObjectEntered.Add(this, &Scoring::m_OnObjectEntered);
-	m_playback->OnObjectLeaved.Add(this, &Scoring::m_OnObjectLeaved);
+	m_playback->OnObjectEntered.Add("Scoring::m_OnObjectEntered", this, &Scoring::m_OnObjectEntered);
+	m_playback->OnObjectLeaved.Add("Scoring::m_OnObjectLeaved", this, &Scoring::m_OnObjectLeaved);
 }
 
 void Scoring::SetInput(Input* input)
@@ -91,8 +91,8 @@ void Scoring::SetInput(Input* input)
 	if(input)
 	{
 		m_input = input;
-		m_input->OnButtonPressed.Add(this, &Scoring::m_OnButtonPressed);
-		m_input->OnButtonReleased.Add(this, &Scoring::m_OnButtonReleased);
+		m_input->OnButtonPressed.Add("Scoring::m_OnButtonPressed", this, &Scoring::m_OnButtonPressed);
+		m_input->OnButtonReleased.Add("Scoring::m_OnButtonReleased", this, &Scoring::m_OnButtonReleased);
 	}
 }
 void Scoring::SetFlags(GameFlags flags)
@@ -103,8 +103,8 @@ void Scoring::m_CleanupInput()
 {
 	if(m_input)
 	{
-		m_input->OnButtonPressed.RemoveAll(this);
-		m_input->OnButtonReleased.RemoveAll(this);
+		m_input->OnButtonPressed.RemoveAll("Scoring");
+		m_input->OnButtonReleased.RemoveAll("Scoring");
 		m_input = nullptr;
 	}
 }

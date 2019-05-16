@@ -115,8 +115,8 @@ private:
 	MouseLockHandle m_lockMouse;
 
 	// Current background visualization
-	Background* m_background = nullptr;
-	Background* m_foreground = nullptr;
+	std::unique_ptr<Background> m_background;
+	std::unique_ptr<Background> m_foreground;
 
 	// Lua state
 	lua_State* m_lua = nullptr;
@@ -193,10 +193,6 @@ public:
 	{
 		if(m_track)
 			delete m_track;
-		if(m_background)
-			delete m_background;
-		if (m_foreground)
-			delete m_foreground;
 		if (m_lua)
 			g_application->DisposeLua(m_lua);
 		// Save hispeed
@@ -206,7 +202,7 @@ public:
 
 		// In case the cursor was still hidden
 		g_gameWindow->SetCursorVisible(true); 
-		g_input.OnButtonPressed.RemoveAll(this);
+		g_input.OnButtonPressed.RemoveAll("Game_Impl");
 	}
 
 	AsyncAssetLoader loader;
@@ -411,8 +407,10 @@ public:
 
 		// Background 
 		/// TODO: Load this async
-		CheckedLoad(m_background = CreateBackground(this));
-		CheckedLoad(m_foreground = CreateBackground(this, true));
+		m_background.reset(CreateBackground(this));
+		m_foreground.reset(CreateBackground(this, true));
+		CheckedLoad(m_background);
+		CheckedLoad(m_foreground);
 		g_application->LoadGauge((m_flags & GameFlags::Hard) != GameFlags::None);
 
 		particleMaterial->blendMode = MaterialBlendMode::Additive;
@@ -423,7 +421,7 @@ public:
 		m_scoring.SetInput(&g_input);
 		m_scoring.Reset(); // Initialize
 
-		g_input.OnButtonPressed.Add(this, &Game_Impl::m_OnButtonPressed);
+		g_input.OnButtonPressed.Add("Game_Impl::m_OnButtonPressed", this, &Game_Impl::m_OnButtonPressed);
 
 		if ((m_flags & GameFlags::Random) != GameFlags::None)
 		{
@@ -892,11 +890,11 @@ public:
 	{
 		// Playback and timing
 		m_playback = BeatmapPlayback(*m_beatmap);
-		m_playback.OnEventChanged.Add(this, &Game_Impl::OnEventChanged);
-		m_playback.OnLaneToggleChanged.Add(this, &Game_Impl::OnLaneToggleChanged);
-		m_playback.OnFXBegin.Add(this, &Game_Impl::OnFXBegin);
-		m_playback.OnFXEnd.Add(this, &Game_Impl::OnFXEnd);
-		m_playback.OnLaserAlertEntered.Add(this, &Game_Impl::OnLaserAlertEntered);
+		m_playback.OnEventChanged.Add("Game_Impl::OnEventChanged", this, &Game_Impl::OnEventChanged);
+		m_playback.OnLaneToggleChanged.Add("Game_Impl::OnLaneToggleChanged", this, &Game_Impl::OnLaneToggleChanged);
+		m_playback.OnFXBegin.Add("Game_Impl::OnFXBegin", this, &Game_Impl::OnFXBegin);
+		m_playback.OnFXEnd.Add("Game_Impl::OnFXEnd", this, &Game_Impl::OnFXEnd);
+		m_playback.OnLaserAlertEntered.Add("Game_Impl::OnLaserAlertEntered", this, &Game_Impl::OnLaserAlertEntered);
 		m_playback.Reset();
 
 		// Set camera start position
@@ -908,18 +906,18 @@ public:
         // If c-mod is used
 		if (m_usecMod)
 		{
-			m_playback.OnTimingPointChanged.Add(this, &Game_Impl::OnTimingPointChanged);
+			m_playback.OnTimingPointChanged.Add("Game_Impl::OnTimingPointChanged", this, &Game_Impl::OnTimingPointChanged);
 		}
 		m_playback.cMod = m_usecMod;
 		m_playback.cModSpeed = m_hispeed * m_playback.GetCurrentTimingPoint().GetBPM();
 		// Register input bindings
-		m_scoring.OnButtonMiss.Add(this, &Game_Impl::OnButtonMiss);
-		m_scoring.OnLaserSlamHit.Add(this, &Game_Impl::OnLaserSlamHit);
-		m_scoring.OnButtonHit.Add(this, &Game_Impl::OnButtonHit);
-		m_scoring.OnComboChanged.Add(this, &Game_Impl::OnComboChanged);
-		m_scoring.OnObjectHold.Add(this, &Game_Impl::OnObjectHold);
-		m_scoring.OnObjectReleased.Add(this, &Game_Impl::OnObjectReleased);
-		m_scoring.OnScoreChanged.Add(this, &Game_Impl::OnScoreChanged);
+		m_scoring.OnButtonMiss.Add("Game_Impl::OnButtonMiss", this, &Game_Impl::OnButtonMiss);
+		m_scoring.OnLaserSlamHit.Add("Game_Impl::OnLaserSlamHit", this, &Game_Impl::OnLaserSlamHit);
+		m_scoring.OnButtonHit.Add("Game_Impl::OnButtonHit", this, &Game_Impl::OnButtonHit);
+		m_scoring.OnComboChanged.Add("Game_Impl::OnComboChanged", this, &Game_Impl::OnComboChanged);
+		m_scoring.OnObjectHold.Add("Game_Impl::OnObjectHold", this, &Game_Impl::OnObjectHold);
+		m_scoring.OnObjectReleased.Add("Game_Impl::OnObjectReleased", this, &Game_Impl::OnObjectReleased);
+		m_scoring.OnScoreChanged.Add("Game_Impl::OnScoreChanged", this, &Game_Impl::OnScoreChanged);
 
 		m_playback.hittableObjectEnter = Scoring::missHitTime;
 		m_playback.hittableObjectLeave = Scoring::goodHitTime;
@@ -1155,7 +1153,7 @@ public:
 		{
 			// Transition to score screen
 			TransitionScreen* transition = TransitionScreen::Create(ScoreScreen::Create(this));
-			transition->OnLoadingComplete.Add(this, &Game_Impl::OnScoreScreenLoaded);
+			transition->OnLoadingComplete.Add("Game_Impl::OnScoreScreenLoaded", this, &Game_Impl::OnScoreScreenLoaded);
 			g_application->AddTickable(transition);
 			m_transitioning = true;
 		}

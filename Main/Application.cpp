@@ -33,7 +33,7 @@ GameConfig g_gameConfig;
 OpenGL* g_gl = nullptr;
 Graphics::Window* g_gameWindow = nullptr;
 Application* g_application = nullptr;
-JobSheduler* g_jobSheduler = nullptr;
+JobScheduler* g_jobSheduler = nullptr;
 Input g_input;
 
 // Tickable queue
@@ -293,7 +293,7 @@ bool Application::m_Init()
 	}
 
 	// Job sheduler
-	g_jobSheduler = new JobSheduler();
+	g_jobSheduler = new JobScheduler();
 
 	m_allowMapConversion = false;
 	bool debugMute = false;
@@ -343,9 +343,9 @@ bool Application::m_Init()
 	g_gameWindow = new Graphics::Window(g_resolution, samplecount);
 	g_gameWindow->Show();
 
-	g_gameWindow->OnKeyPressed.Add(this, &Application::m_OnKeyPressed);
-	g_gameWindow->OnKeyReleased.Add(this, &Application::m_OnKeyReleased);
-	g_gameWindow->OnResized.Add(this, &Application::m_OnWindowResized);
+	g_gameWindow->OnKeyPressed.Add("Application::m_OnKeyPressed", this, &Application::m_OnKeyPressed);
+	g_gameWindow->OnKeyReleased.Add("Application::m_OnKeyReleased", this, &Application::m_OnKeyReleased);
+	g_gameWindow->OnResized.Add("Application::m_OnWindowResized", this, &Application::m_OnWindowResized);
 
 	// Initialize Input
 	g_input.Init(*g_gameWindow);
