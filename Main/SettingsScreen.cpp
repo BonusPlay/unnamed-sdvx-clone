@@ -54,34 +54,34 @@ private:
 
 	Vector<GameConfigKeys> m_keyboardKeys = {
 		GameConfigKeys::Key_BTS,
-		GameConfigKeys::Key_BT0,
-		GameConfigKeys::Key_BT1,
-		GameConfigKeys::Key_BT2,
-		GameConfigKeys::Key_BT3,
-		GameConfigKeys::Key_FX0,
-		GameConfigKeys::Key_FX1
+		GameConfigKeys::Key_BTA,
+		GameConfigKeys::Key_BTB,
+		GameConfigKeys::Key_BTC,
+		GameConfigKeys::Key_BTD,
+		GameConfigKeys::Key_FXL,
+		GameConfigKeys::Key_FXR
 	};
 
 	Vector<GameConfigKeys> m_keyboardLaserKeys = {
-		GameConfigKeys::Key_Laser0Neg,
-		GameConfigKeys::Key_Laser0Pos,
-		GameConfigKeys::Key_Laser1Neg,
-		GameConfigKeys::Key_Laser1Pos,
+		GameConfigKeys::Key_LaserLNeg,
+		GameConfigKeys::Key_LaserLPos,
+		GameConfigKeys::Key_LaserRNeg,
+		GameConfigKeys::Key_LaserRPos,
 	};
 
 	Vector<GameConfigKeys> m_controllerKeys = {
 		GameConfigKeys::Controller_BTS,
-		GameConfigKeys::Controller_BT0,
-		GameConfigKeys::Controller_BT1,
-		GameConfigKeys::Controller_BT2,
-		GameConfigKeys::Controller_BT3,
-		GameConfigKeys::Controller_FX0,
-		GameConfigKeys::Controller_FX1
+		GameConfigKeys::Controller_BTA,
+		GameConfigKeys::Controller_BTB,
+		GameConfigKeys::Controller_BTC,
+		GameConfigKeys::Controller_BTD,
+		GameConfigKeys::Controller_FXL,
+		GameConfigKeys::Controller_FXR
 	};
 
 	Vector<GameConfigKeys> m_controllerLaserKeys = {
-		GameConfigKeys::Controller_Laser0Axis,
-		GameConfigKeys::Controller_Laser1Axis,
+		GameConfigKeys::Controller_LaserLAxis,
+		GameConfigKeys::Controller_LaserRAxis,
 
 	};
 
@@ -120,71 +120,23 @@ private:
 	{
 		eventQueue.push(evt);
 	}
+	void SetKey(GameConfigKeys Controller, GameConfigKeys Key)
+	{
+		if (m_buttonMode == 1)
+			g_application->AddTickable(ButtonBindingScreen::Create(Controller, true, m_selectedGamepad));
+		else
+			g_application->AddTickable(ButtonBindingScreen::Create(Key));
 
-	//TODO: Use argument instead of many functions if possible.
-	void SetKey_BTA()
-	{
-		if (m_buttonMode == 1)
-			g_application->AddTickable(ButtonBindingScreen::Create(GameConfigKeys::Controller_BT0, true, m_selectedGamepad));
-		else
-			g_application->AddTickable(ButtonBindingScreen::Create(GameConfigKeys::Key_BT0));
 	}
-	void SetKey_BTB()
+	void SetLaser(GameConfigKeys ControllerAxis)
 	{
-		if (m_buttonMode == 1)
-			g_application->AddTickable(ButtonBindingScreen::Create(GameConfigKeys::Controller_BT1, true, m_selectedGamepad));
-		else
-			g_application->AddTickable(ButtonBindingScreen::Create(GameConfigKeys::Key_BT1));
-	}
-	void SetKey_BTC()
-	{
-		if (m_buttonMode == 1)
-			g_application->AddTickable(ButtonBindingScreen::Create(GameConfigKeys::Controller_BT2, true, m_selectedGamepad));
-		else
-			g_application->AddTickable(ButtonBindingScreen::Create(GameConfigKeys::Key_BT2));
-	}
-	void SetKey_BTD()
-	{
-		if (m_buttonMode == 1)
-			g_application->AddTickable(ButtonBindingScreen::Create(GameConfigKeys::Controller_BT3, true, m_selectedGamepad));
-		else
-			g_application->AddTickable(ButtonBindingScreen::Create(GameConfigKeys::Key_BT3));
-	}
-	void SetKey_FXL()
-	{
-		if (m_buttonMode == 1)
-			g_application->AddTickable(ButtonBindingScreen::Create(GameConfigKeys::Controller_FX0, true, m_selectedGamepad));
-		else
-			g_application->AddTickable(ButtonBindingScreen::Create(GameConfigKeys::Key_FX0));
-	}
-	void SetKey_FXR()
-	{
-		if (m_buttonMode == 1)
-			g_application->AddTickable(ButtonBindingScreen::Create(GameConfigKeys::Controller_FX1, true, m_selectedGamepad));
-		else
-			g_application->AddTickable(ButtonBindingScreen::Create(GameConfigKeys::Key_FX1));
-	}
-	void SetKey_ST()
-	{
-		if (m_buttonMode == 1)
-			g_application->AddTickable(ButtonBindingScreen::Create(GameConfigKeys::Controller_BTS, true, m_selectedGamepad));
-		else
-			g_application->AddTickable(ButtonBindingScreen::Create(GameConfigKeys::Key_BTS));
-	}
-
-	void SetLL()
-	{
-		g_application->AddTickable(ButtonBindingScreen::Create(GameConfigKeys::Controller_Laser0Axis, m_laserMode == 2, m_selectedGamepad));
-	}
-	void SetRL()
-	{
-		g_application->AddTickable(ButtonBindingScreen::Create(GameConfigKeys::Controller_Laser1Axis, m_laserMode == 2, m_selectedGamepad));
+		g_application->AddTickable(ButtonBindingScreen::Create(ControllerAxis, m_laserMode == 2, m_selectedGamepad));
 	}
 
 	void CalibrateSens()
 	{
 		LaserSensCalibrationScreen* sensScreen = LaserSensCalibrationScreen::Create();
-		sensScreen->SensSet.Add(this, &SettingsScreen_Impl::SetSens);
+		sensScreen->SensSet.Add("SettingsScreen_Impl::SetSens", this, &SettingsScreen_Impl::SetSens);
 		g_application->AddTickable(sensScreen);
 	}
 
@@ -195,7 +147,7 @@ private:
 
 	void Exit()
 	{
-		g_gameWindow->OnAnyEvent.RemoveAll(this);
+		g_gameWindow->OnAnyEvent.RemoveAll("SettingsScreen_Impl");
 
 		Map<String, InputDevice> inputModeMap = {
 			{ "Keyboard", InputDevice::Keyboard },
@@ -278,7 +230,7 @@ public:
 		m_skins = Path::GetSubDirs("./skins/");
 
 		m_nctx = nk_sdl_init((SDL_Window*)g_gameWindow->Handle());
-		g_gameWindow->OnAnyEvent.Add(this, &SettingsScreen_Impl::UpdateNuklearInput);
+		g_gameWindow->OnAnyEvent.Add("SettingsScreen_Impl::UpdateNuklearInput", this, &SettingsScreen_Impl::UpdateNuklearInput);
 		{
 			struct nk_font_atlas *atlas;
 			nk_sdl_font_stash_begin(&atlas);
@@ -435,18 +387,18 @@ public:
 			auto comboBoxSize = nk_vec2(w - 30 ,250);
 
 			nk_layout_row_dynamic(m_nctx, buttonheight, 3);
-			if (nk_button_label(m_nctx, m_controllerLaserNames[0].c_str())) SetLL();
-			if (nk_button_label(m_nctx, m_controllerButtonNames[0].c_str())) SetKey_ST();
-			if (nk_button_label(m_nctx, m_controllerLaserNames[1].c_str())) SetRL();
+			if (nk_button_label(m_nctx, m_controllerLaserNames[0].c_str())) SetLaser(GameConfigKeys::Controller_LaserLAxis);
+			if (nk_button_label(m_nctx, m_controllerButtonNames[0].c_str())) SetKey(GameConfigKeys::Controller_BTS, GameConfigKeys::Key_BTS);
+			if (nk_button_label(m_nctx, m_controllerLaserNames[1].c_str())) SetLaser(GameConfigKeys::Controller_LaserRAxis);
 
 			nk_layout_row_dynamic(m_nctx, buttonheight, 4);
-			if (nk_button_label(m_nctx, m_controllerButtonNames[1].c_str())) SetKey_BTA();
-			if (nk_button_label(m_nctx, m_controllerButtonNames[2].c_str())) SetKey_BTB();
-			if (nk_button_label(m_nctx, m_controllerButtonNames[3].c_str())) SetKey_BTC();
-			if (nk_button_label(m_nctx, m_controllerButtonNames[4].c_str())) SetKey_BTD();
+			if (nk_button_label(m_nctx, m_controllerButtonNames[1].c_str())) SetKey(GameConfigKeys::Controller_BTA, GameConfigKeys::Key_BTA);
+			if (nk_button_label(m_nctx, m_controllerButtonNames[2].c_str())) SetKey(GameConfigKeys::Controller_BTB, GameConfigKeys::Key_BTB);
+			if (nk_button_label(m_nctx, m_controllerButtonNames[3].c_str())) SetKey(GameConfigKeys::Controller_BTC, GameConfigKeys::Key_BTC);
+			if (nk_button_label(m_nctx, m_controllerButtonNames[4].c_str())) SetKey(GameConfigKeys::Controller_BTD, GameConfigKeys::Key_BTD);
 			nk_layout_row_dynamic(m_nctx, buttonheight, 2);
-			if (nk_button_label(m_nctx, m_controllerButtonNames[5].c_str())) SetKey_FXL();
-			if (nk_button_label(m_nctx, m_controllerButtonNames[6].c_str())) SetKey_FXR();
+			if (nk_button_label(m_nctx, m_controllerButtonNames[5].c_str())) SetKey(GameConfigKeys::Controller_FXL, GameConfigKeys::Key_FXL);
+			if (nk_button_label(m_nctx, m_controllerButtonNames[6].c_str())) SetKey(GameConfigKeys::Controller_FXR, GameConfigKeys::Key_FXR);
 
 			nk_layout_row_dynamic(m_nctx, buttonheight, 1);
 			if (nk_button_label(m_nctx, "Calibrate Laser Sensitivity")) CalibrateSens();
@@ -553,7 +505,7 @@ public:
 		m_key = key;
 		m_gamepadIndex = controllerindex;
 		m_isGamepad = gamepad;
-		m_knobs = (key == GameConfigKeys::Controller_Laser0Axis || key == GameConfigKeys::Controller_Laser1Axis);
+		m_knobs = (key == GameConfigKeys::Controller_LaserLAxis || key == GameConfigKeys::Controller_LaserRAxis);
 			
 	}
 
@@ -576,7 +528,7 @@ public:
 			}
 			else
 			{
-				m_gamepad->OnButtonPressed.Add(this, &ButtonBindingScreen_Impl::OnButtonPressed);
+				m_gamepad->OnButtonPressed.Add("ButtonBindingScreen_Impl::OnButtonPressed", this, &ButtonBindingScreen_Impl::OnButtonPressed);
 			}
 		}
 		return true;
@@ -601,7 +553,7 @@ public:
 
 		if (m_completed && m_gamepad)
 		{
-			m_gamepad->OnButtonPressed.RemoveAll(this);
+			m_gamepad->OnButtonPressed.RemoveAll("ButtonBindingScreen_Impl");
 			m_gamepad.Release();
 
 			g_application->RemoveTickable(this);
@@ -664,11 +616,11 @@ public:
 			{
 				switch (m_key)
 				{
-				case GameConfigKeys::Controller_Laser0Axis:
-					g_gameConfig.Set(GameConfigKeys::Key_Laser0Neg, key);
+				case GameConfigKeys::Controller_LaserLAxis:
+					g_gameConfig.Set(GameConfigKeys::Key_LaserLNeg, key);
 					break;
-				case GameConfigKeys::Controller_Laser1Axis:
-					g_gameConfig.Set(GameConfigKeys::Key_Laser1Neg, key);
+				case GameConfigKeys::Controller_LaserRAxis:
+					g_gameConfig.Set(GameConfigKeys::Key_LaserRNeg, key);
 					break;
 				default:
 					break;
@@ -679,11 +631,11 @@ public:
 			{
 				switch (m_key)
 				{
-				case GameConfigKeys::Controller_Laser0Axis:
-					g_gameConfig.Set(GameConfigKeys::Key_Laser0Pos, key);
+				case GameConfigKeys::Controller_LaserLAxis:
+					g_gameConfig.Set(GameConfigKeys::Key_LaserLPos, key);
 					break;
-				case GameConfigKeys::Controller_Laser1Axis:
-					g_gameConfig.Set(GameConfigKeys::Key_Laser1Pos, key);
+				case GameConfigKeys::Controller_LaserRAxis:
+					g_gameConfig.Set(GameConfigKeys::Key_LaserRPos, key);
 					break;
 				default:
 					break;
@@ -727,7 +679,7 @@ public:
 
 	~LaserSensCalibrationScreen_Impl()
 	{
-		g_input.OnButtonPressed.RemoveAll(this);
+		g_input.OnButtonPressed.RemoveAll("LaserSensCalibrationScreen_Impl");
 	}
 
 	bool Init()
@@ -739,7 +691,7 @@ public:
 		else
 			m_currentSetting = g_gameConfig.GetFloat(GameConfigKeys::Mouse_Sensitivity);
 
-		g_input.OnButtonPressed.Add(this, &LaserSensCalibrationScreen_Impl::OnButtonPressed);
+		g_input.OnButtonPressed.Add("LaserSensCalibrationScreen_Impl::OnButtonPressed", this, &LaserSensCalibrationScreen_Impl::OnButtonPressed);
 		return true;
 	}
 

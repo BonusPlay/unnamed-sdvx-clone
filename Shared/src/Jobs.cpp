@@ -184,19 +184,19 @@ private:
 		}
 	}
 };
-JobSheduler::JobSheduler()
+JobScheduler::JobScheduler()
 {
 	m_impl = new JobSheduler_Impl();
 }
-JobSheduler::~JobSheduler()
+JobScheduler::~JobScheduler()
 {
 	delete m_impl;
 }
-void JobSheduler::Update()
+void JobScheduler::Update()
 {
 	m_impl->Update();
 }
-bool JobSheduler::Queue(Job job)
+bool JobScheduler::Queue(Job job)
 {
 	// Can't queue jobs twice
 	if(job->IsQueued())

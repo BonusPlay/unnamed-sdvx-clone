@@ -70,7 +70,7 @@ Test("Beatmap.Playback")
 			Init(songPath, settings.previewOffset);
 			playback = BeatmapPlayback(beatmap);
 			playback.Reset(settings.previewOffset);
-			playback.OnTimingPointChanged.AddLambda([](TimingPoint* obj)
+			playback.OnTimingPointChanged.AddLambda("", [](TimingPoint* obj)
 			{
 				float bpm = (float)obj->GetBPM();
 				Logf("T %.2f BPM %d/%d", Logger::Info, bpm, obj->numerator, obj->denominator);
@@ -110,7 +110,7 @@ Test("Beatmap.BPMChanges")
 			Init(songPath, settings.previewOffset);
 			playback = BeatmapPlayback(beatmap);
 			playback.Reset(settings.previewOffset);
-			playback.OnTimingPointChanged.AddLambda([](TimingPoint* obj)
+			playback.OnTimingPointChanged.AddLambda("Main", [](TimingPoint* obj)
 			{
 				float bpm = (float)obj->GetBPM();
 				Logf("T %.2f BPM %d/%d", Logger::Info, bpm, obj->numerator, obj->denominator);
@@ -156,12 +156,12 @@ Test("Beatmap.DoubleFilter")
 
 			playback = BeatmapPlayback(beatmap);
 			playback.Reset(0);
-			playback.OnTimingPointChanged.AddLambda([](TimingPoint* obj)
+			playback.OnTimingPointChanged.AddLambda("Main", [](TimingPoint* obj)
 			{
 				float bpm = (float)obj->GetBPM();
 				Logf("T %.2f BPM %d/%d", Logger::Info, bpm, obj->numerator, obj->denominator);
 			});
-			playback.OnObjectEntered.AddLambda([&](ObjectState* obj) {
+			playback.OnObjectEntered.AddLambda("Main", [&](ObjectState* obj) {
 				if(obj->type == ObjectType::Laser)
 				{
 					LaserObjectState* laserObj = (LaserObjectState*)obj;
@@ -264,12 +264,12 @@ Test("Beatmap.SingleFilter")
 
 			playback = BeatmapPlayback(beatmap);
 			playback.Reset(0);
-			playback.OnTimingPointChanged.AddLambda([](TimingPoint* obj)
+			playback.OnTimingPointChanged.AddLambda("Main", [](TimingPoint* obj)
 			{
 				float bpm = (float)obj->GetBPM();
 				Logf("T %.2f BPM %d/%d", Logger::Info, bpm, obj->numerator, obj->denominator);
 			});
-			playback.OnObjectEntered.AddLambda([&](ObjectState* obj) {
+			playback.OnObjectEntered.AddLambda("Main", [&](ObjectState* obj) {
 				if(obj->type == ObjectType::Laser)
 				{
 					LaserObjectState* laserObj = (LaserObjectState*)obj;

@@ -13,9 +13,9 @@ void Input::Init(Graphics::Window& wnd)
 {
 	Cleanup();
 	m_window = &wnd;
-	m_window->OnKeyPressed.Add(this, &Input::OnKeyPressed);
-	m_window->OnKeyReleased.Add(this, &Input::OnKeyReleased);
-	m_window->OnMouseMotion.Add(this, &Input::OnMouseMotion);
+	m_window->OnKeyPressed.Add("Input::OnKeyPressed", this, &Input::OnKeyPressed);
+	m_window->OnKeyReleased.Add("Input::OnKeyReleased", this, &Input::OnKeyReleased);
+	m_window->OnMouseMotion.Add("Input::OnMouseMotion", this, &Input::OnMouseMotion);
 
 
 	m_lastMousePos[0] = m_window->GetMousePos().x;
@@ -27,12 +27,12 @@ void Input::Init(Graphics::Window& wnd)
 	m_keySensitivity = g_gameConfig.GetFloat(GameConfigKeys::Key_Sensitivity);
 	m_keyLaserReleaseTime = g_gameConfig.GetFloat(GameConfigKeys::Key_LaserReleaseTime);
 
-	m_mouseAxisMapping[0] = g_gameConfig.GetInt(GameConfigKeys::Mouse_Laser0Axis);
-	m_mouseAxisMapping[1] = g_gameConfig.GetInt(GameConfigKeys::Mouse_Laser1Axis);
+	m_mouseAxisMapping[0] = g_gameConfig.GetInt(GameConfigKeys::Mouse_LaserLAxis);
+	m_mouseAxisMapping[1] = g_gameConfig.GetInt(GameConfigKeys::Mouse_LaserRAxis);
 	m_mouseSensitivity = g_gameConfig.GetFloat(GameConfigKeys::Mouse_Sensitivity);
 
-	m_controllerAxisMapping[0] = g_gameConfig.GetInt(GameConfigKeys::Controller_Laser0Axis);
-	m_controllerAxisMapping[1] = g_gameConfig.GetInt(GameConfigKeys::Controller_Laser1Axis);
+	m_controllerAxisMapping[0] = g_gameConfig.GetInt(GameConfigKeys::Controller_LaserLAxis);
+	m_controllerAxisMapping[1] = g_gameConfig.GetInt(GameConfigKeys::Controller_LaserRAxis);
 	m_controllerSensitivity = g_gameConfig.GetFloat(GameConfigKeys::Controller_Sensitivity);
 	m_controllerDeadzone = g_gameConfig.GetFloat(GameConfigKeys::Controller_Deadzone);
 
@@ -49,8 +49,8 @@ void Input::Init(Graphics::Window& wnd)
 			m_gamepad = m_window->OpenGamepad(deviceIndex);
 			if(m_gamepad)
 			{
-				m_gamepad->OnButtonPressed.Add(this, &Input::m_OnGamepadButtonPressed);
-				m_gamepad->OnButtonReleased.Add(this, &Input::m_OnGamepadButtonReleased);
+				m_gamepad->OnButtonPressed.Add("Input::m_OnGamepadButtonPressed", this, &Input::m_OnGamepadButtonPressed);
+				m_gamepad->OnButtonReleased.Add("Input::m_OnGamepadButtonReleased", this, &Input::m_OnGamepadButtonReleased);
 			}
 		}
 		m_InitControllerMapping();
@@ -63,15 +63,15 @@ void Input::Cleanup()
 {
 	if(m_gamepad)
 	{
-		m_gamepad->OnButtonPressed.RemoveAll(this);
-		m_gamepad->OnButtonReleased.RemoveAll(this);
+		m_gamepad->OnButtonPressed.RemoveAll("Input");
+		m_gamepad->OnButtonReleased.RemoveAll("Input");
 		m_gamepad.Release();
 	}
 	if(m_window)
 	{
-		m_window->OnKeyPressed.RemoveAll(this);
-		m_window->OnKeyReleased.RemoveAll(this);
-		m_window->OnMouseMotion.RemoveAll(this);
+		m_window->OnKeyPressed.RemoveAll("Input");
+		m_window->OnKeyReleased.RemoveAll("Input");
+		m_window->OnMouseMotion.RemoveAll("Input");
 		m_window = nullptr;
 	}
 }
@@ -225,30 +225,30 @@ void Input::m_InitKeyboardMapping()
 	{
 		// Button mappings
 		m_buttonMap.Add(g_gameConfig.GetInt(GameConfigKeys::Key_BTS), Button::BT_S);
-		m_buttonMap.Add(g_gameConfig.GetInt(GameConfigKeys::Key_BT0), Button::BT_0);
-		m_buttonMap.Add(g_gameConfig.GetInt(GameConfigKeys::Key_BT1), Button::BT_1);
-		m_buttonMap.Add(g_gameConfig.GetInt(GameConfigKeys::Key_BT2), Button::BT_2);
-		m_buttonMap.Add(g_gameConfig.GetInt(GameConfigKeys::Key_BT3), Button::BT_3);
+		m_buttonMap.Add(g_gameConfig.GetInt(GameConfigKeys::Key_BTA), Button::BT_0);
+		m_buttonMap.Add(g_gameConfig.GetInt(GameConfigKeys::Key_BTB), Button::BT_1);
+		m_buttonMap.Add(g_gameConfig.GetInt(GameConfigKeys::Key_BTC), Button::BT_2);
+		m_buttonMap.Add(g_gameConfig.GetInt(GameConfigKeys::Key_BTD), Button::BT_3);
 		// Alternate button mappings
-		m_buttonMap.Add(g_gameConfig.GetInt(GameConfigKeys::Key_BT0Alt), Button::BT_0);
-		m_buttonMap.Add(g_gameConfig.GetInt(GameConfigKeys::Key_BT1Alt), Button::BT_1);
-		m_buttonMap.Add(g_gameConfig.GetInt(GameConfigKeys::Key_BT2Alt), Button::BT_2);
-		m_buttonMap.Add(g_gameConfig.GetInt(GameConfigKeys::Key_BT3Alt), Button::BT_3);
+		m_buttonMap.Add(g_gameConfig.GetInt(GameConfigKeys::Key_BTAAlt), Button::BT_0);
+		m_buttonMap.Add(g_gameConfig.GetInt(GameConfigKeys::Key_BTBAlt), Button::BT_1);
+		m_buttonMap.Add(g_gameConfig.GetInt(GameConfigKeys::Key_BTCAlt), Button::BT_2);
+		m_buttonMap.Add(g_gameConfig.GetInt(GameConfigKeys::Key_BTDAlt), Button::BT_3);
 
-		m_buttonMap.Add(g_gameConfig.GetInt(GameConfigKeys::Key_FX0), Button::FX_0);
-		m_buttonMap.Add(g_gameConfig.GetInt(GameConfigKeys::Key_FX1), Button::FX_1);
+		m_buttonMap.Add(g_gameConfig.GetInt(GameConfigKeys::Key_FXL), Button::FX_0);
+		m_buttonMap.Add(g_gameConfig.GetInt(GameConfigKeys::Key_FXR), Button::FX_1);
 		// Alternate button mappings
-		m_buttonMap.Add(g_gameConfig.GetInt(GameConfigKeys::Key_FX0Alt), Button::FX_0);
-		m_buttonMap.Add(g_gameConfig.GetInt(GameConfigKeys::Key_FX1Alt), Button::FX_1);
+		m_buttonMap.Add(g_gameConfig.GetInt(GameConfigKeys::Key_FXLAlt), Button::FX_0);
+		m_buttonMap.Add(g_gameConfig.GetInt(GameConfigKeys::Key_FXRAlt), Button::FX_1);
 	}
 
 	if(m_laserDevice == InputDevice::Keyboard)
 	{
 		// Laser button mappings
-		m_buttonMap.Add(g_gameConfig.GetInt(GameConfigKeys::Key_Laser0Neg), Button::LS_0Neg);
-		m_buttonMap.Add(g_gameConfig.GetInt(GameConfigKeys::Key_Laser0Pos), Button::LS_0Pos);
-		m_buttonMap.Add(g_gameConfig.GetInt(GameConfigKeys::Key_Laser1Neg), Button::LS_1Neg);
-		m_buttonMap.Add(g_gameConfig.GetInt(GameConfigKeys::Key_Laser1Pos), Button::LS_1Pos);
+		m_buttonMap.Add(g_gameConfig.GetInt(GameConfigKeys::Key_LaserLNeg), Button::LS_0Neg);
+		m_buttonMap.Add(g_gameConfig.GetInt(GameConfigKeys::Key_LaserLPos), Button::LS_0Pos);
+		m_buttonMap.Add(g_gameConfig.GetInt(GameConfigKeys::Key_LaserRNeg), Button::LS_1Neg);
+		m_buttonMap.Add(g_gameConfig.GetInt(GameConfigKeys::Key_LaserRPos), Button::LS_1Pos);
 	}
 }
 
@@ -258,12 +258,12 @@ void Input::m_InitControllerMapping()
 	if(m_buttonDevice == InputDevice::Controller)
 	{
 		m_controllerMap.Add(g_gameConfig.GetInt(GameConfigKeys::Controller_BTS), Button::BT_S);
-		m_controllerMap.Add(g_gameConfig.GetInt(GameConfigKeys::Controller_BT0), Button::BT_0);
-		m_controllerMap.Add(g_gameConfig.GetInt(GameConfigKeys::Controller_BT1), Button::BT_1);
-		m_controllerMap.Add(g_gameConfig.GetInt(GameConfigKeys::Controller_BT2), Button::BT_2);
-		m_controllerMap.Add(g_gameConfig.GetInt(GameConfigKeys::Controller_BT3), Button::BT_3);
-		m_controllerMap.Add(g_gameConfig.GetInt(GameConfigKeys::Controller_FX0), Button::FX_0);
-		m_controllerMap.Add(g_gameConfig.GetInt(GameConfigKeys::Controller_FX1), Button::FX_1);
+		m_controllerMap.Add(g_gameConfig.GetInt(GameConfigKeys::Controller_BTA), Button::BT_0);
+		m_controllerMap.Add(g_gameConfig.GetInt(GameConfigKeys::Controller_BTB), Button::BT_1);
+		m_controllerMap.Add(g_gameConfig.GetInt(GameConfigKeys::Controller_BTC), Button::BT_2);
+		m_controllerMap.Add(g_gameConfig.GetInt(GameConfigKeys::Controller_BTD), Button::BT_3);
+		m_controllerMap.Add(g_gameConfig.GetInt(GameConfigKeys::Controller_FXL), Button::FX_0);
+		m_controllerMap.Add(g_gameConfig.GetInt(GameConfigKeys::Controller_FXR), Button::FX_1);
 	}
 }
 

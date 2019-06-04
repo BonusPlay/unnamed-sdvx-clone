@@ -80,7 +80,7 @@ public:
 		{
 			return DoLoad();
 		});
-		m_loadingJob->OnFinished.Add(this, &TransitionScreen_Impl::OnFinished);
+		m_loadingJob->OnFinished.Add("TransitionScreen_Impl::OnFinished", this, &TransitionScreen_Impl::OnFinished);
 		g_jobSheduler->Queue(m_loadingJob);
 
 		return true;

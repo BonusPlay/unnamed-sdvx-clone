@@ -1,9 +1,8 @@
 #pragma once
+#include <map>
 #include "Shared/Utility.hpp"
 #include "Shared/Map.hpp"
 #include "Shared/Bindable.hpp"
-
-typedef void* DelegateHandle;
 
 /*
 	Template delegate class, can have multiple registered classes that handle a call to this function
@@ -11,80 +10,48 @@ typedef void* DelegateHandle;
 template<typename... A>
 class Delegate
 {
-	Map<void*, FunctionBinding<void, A...>*> staticMap;
-	Map<void*, Map<void*, FunctionBinding<void, A...>*>> objectMap;
-	Map<void*, FunctionBinding<void, A...>*> lambdaMap;
+	std::map<std::string, FunctionBinding<void(A...)>> handlers;
 public:
-	~Delegate()
-	{
-		Clear();
-	}
 
-	// Adds an object function handler
+	// Adds an object function handler; ensure tag is of form "objectTag::functionTag"
 	template<typename Class>
-	void Add(Class* object, void (Class::*func)(A...))
+	void Add(std::string tag, Class* object, void (Class::*func)(A...))
 	{
-		void* id = Utility::UnionCast<void*>(func);
-		auto& fmap = objectMap.FindOrAdd(object);
-		assert(!fmap.Contains(id));
-		fmap.Add(id, new ObjectBinding<Class, void, A...>(object, func));
+		assert(handlers.find(tag) == handlers.end());
+		handlers.emplace(tag, ObjectBinding<Class, void(A...)>(object, func));
 	}
 	// Adds a static function handler
-	void Add(void (*func)(A...))
+	void Add(std::string tag, std::function<void(A...)> func)
 	{
-		void* id = Utility::UnionCast<void*>(func);
-		assert(!staticMap.Contains(id));
-		staticMap.Add(id, new FunctionBinding<void, A...>(func));
+		assert(handlers.find(tag) == handlers.end());
+		handlers.emplace(tag, func);
 	}
 	// Adds a lambda function as a handler for this delegate
-	template<typename T> DelegateHandle AddLambda(T&& lambda)
+	template<typename T> void AddLambda(std::string tag, T&& lambda)
 	{
-		FunctionBinding<void, A...>* binding = new FunctionBinding<void, A...>(std::forward<T>(lambda));
-		void* id = binding;
-		assert(!lambdaMap.Contains(id));
-		lambdaMap.Add(id, binding);
-		return id;
+		assert(handlers.find(tag) == handlers.end());
+		handlers.emplace(tag, std::forward<T>(lambda));
+	}
+	// Removes a handler
+	void Remove(std::string tag)
+	{
+		assert(handlers.find(tag) != handlers.end());
+		handlers.erase(tag);
 	}
 
-	// Removes an object handler
-	template<typename Class>
-	void Remove(Class* object, void(Class::*func)(A...))
+	// Removes all handlers belonging to a specific namespace
+	void RemoveAll(std::string objectTag)
 	{
-		void* id = Utility::UnionCast<void*>(func);
-		assert(objectMap.Contains(object));
-		auto& fmap = objectMap[object];
-		assert(fmap.Contains(id));
-		fmap.erase(id);
-		if(fmap.empty())
-			objectMap.erase(object);
-	}
-	// Removes a static handler
-	void Remove(void(*func)(A...))
-	{
-		void* id = Utility::UnionCast<void*>(func);
-		assert(staticMap.Contains(id));
-		delete staticMap[id];
-		staticMap.erase(id);
-	}
-	// Removes a lambda by it's handle
-	void Remove(DelegateHandle handle)
-	{
-		assert(lambdaMap.Contains(handle));
-		delete lambdaMap[handle];
-		lambdaMap.erase(handle);
-	}
-
-	// Removes all handlers belonging to a specific object
-	void RemoveAll(void* object)
-	{
-		auto it = objectMap.find(object);
-		if(it != objectMap.end())
+		for (auto it = handlers.begin(); it != handlers.end();)
 		{
-			for(auto& f : it->second)
+			if (it->first.rfind(objectTag, 0) == 0)
 			{
-				delete f.second;
+				it = handlers.erase(it);
 			}
-			objectMap.erase(it);
+			else
+			{
+				it++;
+			}
 		}
 	}
 
@@ -92,49 +59,21 @@ public:
 	void Clear()
 	{
 		// Cleanup the pointers
-		for(auto& h : staticMap)
-		{
-			delete h.second;
-		}
-		for(auto& h : objectMap)
-		{
-			for(auto& f : h.second)
-			{
-				delete f.second;
-			}
-		}
-		for(auto& h : lambdaMap)
-		{
-			delete h.second;
-		}
-		staticMap.clear();
-		objectMap.clear();
-		lambdaMap.clear();
+		handlers.clear();
 	}
 
 	// Calls the delegate
 	void operator()(A... args)
 	{
-		for(auto& h : staticMap)
+		for(auto& h : handlers)
 		{
-			(*h.second)(args...);
-		}
-		for(auto& h : objectMap)
-		{
-			for(auto& f : h.second)
-			{
-				(*f.second)(args...);
-			}
-		}
-		for(auto& h : lambdaMap)
-		{
-			(*h.second)(args...);
+			h.second(args...);
 		}
 	}
 
 	// True if anything function is handling this delegate being called
 	bool IsHandled() const
 	{
-		return !staticMap.empty() || !objectMap.empty() || !lambdaMap.empty();
+		return !handlers.empty() || !handlers.empty() || !handlers.empty();
 	}
 };

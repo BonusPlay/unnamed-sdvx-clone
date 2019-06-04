@@ -29,14 +29,6 @@ public:
 	bool active = false;
 	Delegate<const WString&> OnTextChanged;
 
-	~TextInput()
-	{
-		g_gameWindow->OnTextInput.RemoveAll(this);
-		g_gameWindow->OnTextComposition.RemoveAll(this);
-		g_gameWindow->OnKeyRepeat.RemoveAll(this);
-		g_gameWindow->OnKeyPressed.RemoveAll(this);
-	}
-
 	void OnTextInput(const WString& wstr)
 	{
 		input += wstr;
@@ -81,18 +73,18 @@ public:
 		if(state)
 		{
 			SDL_StartTextInput();
-			g_gameWindow->OnTextInput.Add(this, &TextInput::OnTextInput);
-			g_gameWindow->OnTextComposition.Add(this, &TextInput::OnTextComposition);
-			g_gameWindow->OnKeyRepeat.Add(this, &TextInput::OnKeyRepeat);
-			g_gameWindow->OnKeyPressed.Add(this, &TextInput::OnKeyPressed);
+			g_gameWindow->OnTextInput.Add("TextInput::OnTextInput", this, &TextInput::OnTextInput);
+			g_gameWindow->OnTextComposition.Add("TextInput::OnTextComposition", this, &TextInput::OnTextComposition);
+			g_gameWindow->OnKeyRepeat.Add("TextInput::OnKeyRepeat", this, &TextInput::OnKeyRepeat);
+			g_gameWindow->OnKeyPressed.Add("TextInput::OnKeyPressed", this, &TextInput::OnKeyPressed);
 		}
 		else
 		{
 			SDL_StopTextInput();
-			g_gameWindow->OnTextInput.RemoveAll(this);
-			g_gameWindow->OnTextComposition.RemoveAll(this);
-			g_gameWindow->OnKeyRepeat.RemoveAll(this);
-			g_gameWindow->OnKeyPressed.RemoveAll(this);
+			g_gameWindow->OnTextInput.RemoveAll("TextInput");
+			g_gameWindow->OnTextComposition.RemoveAll("TextInput");
+			g_gameWindow->OnKeyRepeat.RemoveAll("TextInput");
+			g_gameWindow->OnKeyPressed.RemoveAll("TextInput");
 		}
 	}
 	void Reset()
@@ -1027,9 +1019,9 @@ public:
 	bool Init() override
 	{
 		CheckedLoad(m_lua = g_application->LoadScript("songselect/background"));
-		g_input.OnButtonPressed.Add(this, &SongSelect_Impl::m_OnButtonPressed);
-		g_input.OnButtonReleased.Add(this, &SongSelect_Impl::m_OnButtonReleased);
-		g_gameWindow->OnMouseScroll.Add(this, &SongSelect_Impl::m_OnMouseScroll);
+		g_input.OnButtonPressed.Add("SongSelect_Impl::m_OnButtonPressed", this, &SongSelect_Impl::m_OnButtonPressed);
+		g_input.OnButtonReleased.Add("SongSelect_Impl::m_OnButtonReleased", this, &SongSelect_Impl::m_OnButtonReleased);
+		g_gameWindow->OnMouseScroll.Add("SongSelect_Impl::m_OnMouseScroll", this, &SongSelect_Impl::m_OnMouseScroll);
 		m_settingsWheel = Ref<GameSettingsWheel>(new GameSettingsWheel());
 		if (!m_settingsWheel->Init())
 			return false;
@@ -1041,22 +1033,22 @@ public:
 		if (!m_filterSelection->Init())
 			return false;
 		m_filterSelection->SetMapDB(&m_mapDatabase);
-		m_selectionWheel->OnMapSelected.Add(this, &SongSelect_Impl::OnMapSelected);
-		m_selectionWheel->OnDifficultySelected.Add(this, &SongSelect_Impl::OnDifficultySelected);
+		m_selectionWheel->OnMapSelected.Add("SongSelect_Impl::OnMapSelected", this, &SongSelect_Impl::OnMapSelected);
+		m_selectionWheel->OnDifficultySelected.Add("SongSelect_Impl::OnDifficultySelected", this, &SongSelect_Impl::OnDifficultySelected);
 		// Setup the map database
 		m_mapDatabase.AddSearchPath(g_gameConfig.GetString(GameConfigKeys::SongFolder));
 
-		m_mapDatabase.OnMapsAdded.Add(m_selectionWheel.GetData(), &SelectionWheel::OnMapsAdded);
-		m_mapDatabase.OnMapsUpdated.Add(m_selectionWheel.GetData(), &SelectionWheel::OnMapsUpdated);
-		m_mapDatabase.OnMapsCleared.Add(m_selectionWheel.GetData(), &SelectionWheel::OnMapsCleared);
-		m_mapDatabase.OnSearchStatusUpdated.Add(m_selectionWheel.GetData(), &SelectionWheel::OnSearchStatusUpdated);
+		m_mapDatabase.OnMapsAdded.Add("SelectionWheel::OnMapsAdded", m_selectionWheel.GetData(), &SelectionWheel::OnMapsAdded);
+		m_mapDatabase.OnMapsUpdated.Add("SelectionWheel::OnMapsUpdated", m_selectionWheel.GetData(), &SelectionWheel::OnMapsUpdated);
+		m_mapDatabase.OnMapsCleared.Add("SelectionWheel::OnMapsCleared", m_selectionWheel.GetData(), &SelectionWheel::OnMapsCleared);
+		m_mapDatabase.OnSearchStatusUpdated.Add("SelectionWheel::OnSearchStatusUpdated", m_selectionWheel.GetData(), &SelectionWheel::OnSearchStatusUpdated);
 		m_mapDatabase.StartSearching();
 
 		m_filterSelection->SetFiltersByIndex(g_gameConfig.GetInt(GameConfigKeys::LevelFilter), g_gameConfig.GetInt(GameConfigKeys::FolderFilter));
 		m_selectionWheel->SelectByMapId(g_gameConfig.GetInt(GameConfigKeys::LastSelected));
 
 		m_searchInput = Ref<TextInput>(new TextInput());
-		m_searchInput->OnTextChanged.Add(this, &SongSelect_Impl::OnSearchTermChanged);
+		m_searchInput->OnTextChanged.Add("SongSelect_Impl::OnSearchTermChanged", this, &SongSelect_Impl::OnSearchTermChanged);
 
 
 		/// TODO: Check if debugmute is enabled
@@ -1068,9 +1060,9 @@ public:
 	{
 		// Clear callbacks
 		m_mapDatabase.OnMapsCleared.Clear();
-		g_input.OnButtonPressed.RemoveAll(this);
-		g_input.OnButtonReleased.RemoveAll(this);
-		g_gameWindow->OnMouseScroll.RemoveAll(this);
+		g_input.OnButtonPressed.RemoveAll("SongSelect_Impl");
+		g_input.OnButtonReleased.RemoveAll("SongSelect_Impl");
+		g_gameWindow->OnMouseScroll.RemoveAll("SongSelect_Impl");
 		m_selectionWheel.Destroy();
 		m_filterSelection.Destroy();
 		if (m_lua)
